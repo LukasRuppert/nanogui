@@ -550,13 +550,13 @@ template <typename Value_, size_t Size_> struct Matrix {
 
         Matrix result(0);
         result.m[0][0] = left.x();
-        result.m[0][1] = left.y();
-        result.m[0][2] = left.z();
-        result.m[1][0] = new_up.x();
+        result.m[0][1] = new_up.x();
+        result.m[0][2] = dir.x();
+        result.m[1][0] = left.y();
         result.m[1][1] = new_up.y();
-        result.m[1][2] = new_up.z();
-        result.m[2][0] = dir.x();
-        result.m[2][1] = dir.y();
+        result.m[1][2] = dir.y();
+        result.m[2][0] = left.z();
+        result.m[2][1] = new_up.z();
         result.m[2][2] = dir.z();
         result.m[3][0] = -dot(left, origin);
         result.m[3][1] = -dot(new_up, origin);
