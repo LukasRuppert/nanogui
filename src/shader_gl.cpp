@@ -258,6 +258,10 @@ Shader::~Shader() {
 #if defined(NANOGUI_USE_OPENGL)
     CHK(glDeleteVertexArrays(1, &m_vertex_array_handle));
 #endif
+    for (auto& [index, buf] : m_buffers) {
+        if (buf.type == UniformBuffer)
+            delete[] static_cast<uint8_t*>(buf.buffer);
+    }
 }
 
 void Shader::set_buffer(const std::string &name,

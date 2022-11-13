@@ -82,13 +82,13 @@ public:
         m_border_color = border_color;
     }
 
-    /// Return whether the widget border is drawn
+    /// Return the widget border color
     const Color &border_color() const { return m_border_color; }
 
     /// Specify the widget background color
     void set_background_color(const Color &background_color);
 
-    /// Return whether the widget border is drawn
+    /// Return the widget background color
     const Color &background_color() const;
 
     /// Draw the widget contents. Override this method.
