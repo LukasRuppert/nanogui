@@ -54,10 +54,10 @@ void PopupButton::draw(NVGcontext* ctx) {
         float iw = nvgTextBounds(ctx, 0, 0, icon.data(), nullptr, nullptr);
         Vector2f icon_pos(0, m_pos.y() + m_size.y() * 0.5f - 1);
 
-        if (m_popup->side() == Popup::Right)
-            icon_pos[0] = m_pos.x() + m_size.x() - iw - 8;
-        else
+        if (m_popup->side() == Popup::Left)
             icon_pos[0] = m_pos.x() + 8;
+        else
+            icon_pos[0] = m_pos.x() + m_size.x() - iw - 8;
 
         nvgText(ctx, icon_pos.x(), icon_pos.y(), icon.data(), nullptr);
     }
@@ -71,23 +71,42 @@ void PopupButton::perform_layout(NVGcontext *ctx) {
     int anchor_size = m_popup->anchor_size();
 
     if (parent_window) {
+        int pos_x = absolute_position().x() - parent_window->position().x() + m_size.x() / 2;
         int pos_y = absolute_position().y() - parent_window->position().y() + m_size.y() / 2;
-        if (m_popup->side() == Popup::Right)
-            m_popup->set_anchor_pos(Vector2i(parent_window->width() + anchor_size, pos_y));
-        else
+        switch (m_popup->side()) {
+        case Popup::Left:
             m_popup->set_anchor_pos(Vector2i(-anchor_size, pos_y));
+            break;
+        case Popup::Right:
+            m_popup->set_anchor_pos(Vector2i(parent_window->width() + anchor_size, pos_y));
+            break;
+        case Popup::Up:
+            m_popup->set_anchor_pos(Vector2i(pos_x, -anchor_size));
+            break;
+        case Popup::Down:
+            m_popup->set_anchor_pos(Vector2i(pos_x, parent_window->height() + anchor_size));
+            break;
+        }
     } else {
         m_popup->set_position(absolute_position() + Vector2i(width() + anchor_size + 1,  m_size.y() / 2 - anchor_size));
     }
 }
 
 void PopupButton::set_side(Popup::Side side) {
-    if (m_popup->side() == Popup::Right &&
-        m_chevron_icon == m_theme->m_popup_chevron_right_icon)
+    switch (side) {
+    case Popup::Left:
         set_chevron_icon(m_theme->m_popup_chevron_left_icon);
-    else if (m_popup->side() == Popup::Left &&
-             m_chevron_icon == m_theme->m_popup_chevron_left_icon)
+        break;
+    case Popup::Right:
         set_chevron_icon(m_theme->m_popup_chevron_right_icon);
+        break;
+    case Popup::Up:
+        set_chevron_icon(m_theme->m_text_box_up_icon);
+        break;
+    case Popup::Down:
+        set_chevron_icon(m_theme->m_text_box_down_icon);
+        break;
+    }
     m_popup->set_side(side);
 }
 

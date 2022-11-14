@@ -30,6 +30,10 @@ void Popup::perform_layout(NVGcontext *ctx) {
     }
     if (m_side == Side::Left)
         m_anchor_pos[0] -= size()[0];
+    if (m_side == Side::Up || m_side == Side::Down)
+        m_anchor_pos[0] -= size()[0]/2;
+    if (m_side == Side::Up)
+        m_anchor_pos[1] -= size()[1];
 }
 
 void Popup::refresh_relative_placement() {
@@ -37,7 +41,9 @@ void Popup::refresh_relative_placement() {
         return;
     m_parent_window->refresh_relative_placement();
     m_visible &= m_parent_window->visible_recursive();
-    m_pos = m_parent_window->position() + m_anchor_pos - Vector2i(0, m_anchor_offset);
+    m_pos = m_parent_window->position() + m_anchor_pos;
+    if (m_side == Side::Left || m_side == Side::Right)
+        m_pos -= Vector2i(0, m_anchor_offset);
 }
 
 void Popup::draw(NVGcontext* ctx) {
@@ -68,16 +74,33 @@ void Popup::draw(NVGcontext* ctx) {
     nvgBeginPath(ctx);
     nvgRoundedRect(ctx, m_pos.x(), m_pos.y(), m_size.x(), m_size.y(), cr);
 
-    Vector2i base = m_pos + Vector2i(0, m_anchor_offset);
-    int sign = -1;
-    if (m_side == Side::Left) {
+    Vector2i base = m_pos;
+    if (m_side == Side::Left || m_side == Side::Right)
+        base += Vector2i(0, m_anchor_offset);
+    else
+        base += Vector2i(m_size.x()/2+m_anchor_offset, 0);
+
+    Vector2i sign{0, 0};
+    switch (m_side) {
+    case Side::Left:
+        sign = Vector2i(1, 0);
         base.x() += m_size.x();
-        sign = 1;
+        break;
+    case Side::Right:
+        sign = Vector2i(-1, 0);
+        break;
+    case Side::Up:
+        sign = Vector2i(0, 1);
+        base.y() += m_size.y();
+        break;
+    case Side::Down:
+        sign = Vector2i(0, -1);
+        break;
     }
 
-    nvgMoveTo(ctx, base.x() + m_anchor_size*sign, base.y());
-    nvgLineTo(ctx, base.x() - 1*sign, base.y() - m_anchor_size);
-    nvgLineTo(ctx, base.x() - 1*sign, base.y() + m_anchor_size);
+    nvgMoveTo(ctx, base.x() + m_anchor_size*sign.x(), base.y() + m_anchor_size*sign.y());
+    nvgLineTo(ctx, base.x() - m_anchor_size*sign.y() - 1*sign.x(), base.y() - m_anchor_size*sign.x() - 1*sign.y());
+    nvgLineTo(ctx, base.x() + m_anchor_size*sign.y() - 1*sign.x(), base.y() + m_anchor_size*sign.x() - 1*sign.y());
 
     nvgFillColor(ctx, m_theme->m_window_popup);
     nvgFill(ctx);
