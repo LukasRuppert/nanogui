@@ -412,7 +412,7 @@ std::vector<std::string> file_dialog(const std::vector<std::pair<std::string, st
     if (save)
         cmd += "--save ";
     cmd += "--file-filter=\"";
-    for (auto pair : filetypes)
+    for (const auto& pair : filetypes)
         cmd += "\"*." + pair.first + "\" ";
     cmd += "\"";
     FILE *output = popen(cmd.c_str(), "r");
